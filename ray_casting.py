@@ -65,4 +65,9 @@ class RayCasting:
                 else:
                     cur_voxel_pos.z += dz
                     max_z += delta_z
+
+            # Break the loop if the maximum distance is reached
+            if glm.distance(start_pos, cur_voxel_pos) >= max_dist:
+                break
+
         return False
