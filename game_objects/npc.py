@@ -2,6 +2,7 @@ from settings import *
 import random
 from game_objects.game_object import GameObject
 from game_objects.item import Item
+import numpy as np
 
 
 class NPC(GameObject):
@@ -73,10 +74,10 @@ class NPC(GameObject):
         if not self.is_player_spotted:
             return False
 
-        if glm.length(self.player.position.xz - self.pos.xz) > self.attack_dist:
+        if np.linalg.norm(self.player.position[:2] - self.pos[:2]) > self.attack_dist:
             return False
 
-        dir_to_player = glm.normalize(self.player.position - self.pos)
+        dir_to_player = self.normalize(self.player.position - self.pos)
         #
         if self.eng.ray_casting.run(start_pos=self.pos, direction=dir_to_player):
             self.set_state(state='attack')
@@ -107,14 +108,14 @@ class NPC(GameObject):
         self.set_state(state='walk')
 
         # step to player
-        dir_vec = glm.normalize(glm.vec2(self.path_to_player) + H_WALL_SIZE - self.pos.xz)
+        dir_vec = self.normalize(np.array(self.path_to_player) + H_WALL_SIZE - self.pos[:2])
         delta_vec = dir_vec * self.speed * self.app.delta_time
 
         # collisions
         if not self.is_collide(dx=delta_vec[0]):
-            self.pos.x += delta_vec[0]
+            self.pos[0] += delta_vec[0]
         if not self.is_collide(dz=delta_vec[1]):
-            self.pos.z += delta_vec[1]
+            self.pos[2] += delta_vec[1]
 
         # open door
         door_map = self.level_map.door_map
@@ -130,20 +131,20 @@ class NPC(GameObject):
 
     def is_collide(self, dx=0, dz=0):
         int_pos = (
-            int(self.pos.x + dx + (self.size if dx > 0 else -self.size if dx < 0 else 0)),
-            int(self.pos.z + dz + (self.size if dz > 0 else -self.size if dz < 0 else 0))
+            int(self.pos[0] + dx + (self.size if dx > 0 else -self.size if dx < 0 else 0)),
+            int(self.pos[2] + dz + (self.size if dz > 0 else -self.size if dz < 0 else 0))
         )
         return (int_pos in self.level_map.wall_map or
                 int_pos in (self.level_map.npc_map.keys() - {self.tile_pos}))
 
     def update_tile_position(self):
-        self.tile_pos = int(self.pos.x), int(self.pos.z)
+        self.tile_pos = int(self.pos[0]), int(self.pos[2])
 
     def ray_to_player(self):
         if self.is_player_spotted:
             return None
 
-        dir_to_player = glm.normalize(self.player.position - self.pos)
+        dir_to_player = self.normalize(self.player.position - self.pos)
         #
         if self.eng.ray_casting.run(start_pos=self.pos, direction=dir_to_player):
             self.is_player_spotted = True
@@ -180,3 +181,10 @@ class NPC(GameObject):
             self.level_map.item_map[self.tile_pos] = Item(
                 self.level_map, self.drop_item, x=self.tile_pos[0], z=self.tile_pos[1]
             )
+
+    @staticmethod
+    def normalize(v):
+        norm = np.linalg.norm(v)
+        if norm == 0:
+            return v
+        return v / norm

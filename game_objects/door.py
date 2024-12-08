@@ -1,3 +1,4 @@
+import numpy as np
 from settings import *
 from game_objects.game_object import GameObject
 
@@ -33,5 +34,5 @@ class Door(GameObject):
     def get_rot(self, x, z):
         wall_map = self.level_map.wall_map
         if (x, z - 1) in wall_map and (x, z + 1) in wall_map:
-            return glm.half_pi()
+            return np.pi / 2
         return 0

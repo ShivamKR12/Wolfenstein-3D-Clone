@@ -1,3 +1,4 @@
+import numpy as np
 from meshes.quad_mesh import QuadMesh
 from game_objects.game_object import GameObject
 from settings import *
@@ -6,13 +7,13 @@ from settings import *
 class HUDObject:
     def __init__(self, hud, tex_id):
         self.tex_id = tex_id
-        self.pos = glm.vec3(HUD_SETTINGS[tex_id]['pos'], 0)
+        self.pos = np.array(HUD_SETTINGS[tex_id]['pos'], dtype=np.float32)
         self.rot = 0
         #
         hud.objects.append(self)
         #
         scale = HUD_SETTINGS[tex_id]['scale']
-        self.scale = glm.vec3(scale / ASPECT_RATIO, scale, 0)
+        self.scale = np.array([scale / ASPECT_RATIO, scale, 0], dtype=np.float32)
         #
         self.m_model = GameObject.get_model_matrix(self)
 

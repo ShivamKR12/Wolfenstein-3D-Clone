@@ -2,6 +2,7 @@ from itertools import cycle
 from camera import Camera
 from settings import *
 import random
+import numpy as np
 
 
 class PlayerAttribs:
@@ -123,7 +124,7 @@ class Player(Camera):
                 self.play(self.sound.player_attack[self.weapon_id])
 
     def update_tile_position(self):
-        self.tile_pos = int(self.position.x), int(self.position.z)
+        self.tile_pos = int(self.position[0]), int(self.position[2])
 
     def pick_up_item(self):
         if self.tile_pos not in self.item_map:
@@ -158,7 +159,7 @@ class Player(Camera):
 
     def interact_with_door(self):
         pos = self.position + self.forward
-        int_pos = int(pos.x), int(pos.z)
+        int_pos = int(pos[0]), int(pos[2])
 
         if int_pos not in self.door_map:
             return None
@@ -190,7 +191,7 @@ class Player(Camera):
     def keyboard_control(self):
         key_state = pg.key.get_pressed()
         vel = PLAYER_SPEED * self.app.delta_time
-        next_step = glm.vec2()
+        next_step = np.array([0, 0], dtype=np.float32)
         #
         if key_state[KEYS['FORWARD']]:
             next_step += self.move_forward(vel)
@@ -205,17 +206,17 @@ class Player(Camera):
 
     def move(self, next_step):
         if not self.is_collide(dx=next_step[0]):
-            self.position.x += next_step[0]
+            self.position[0] += next_step[0]
 
         if not self.is_collide(dz=next_step[1]):
-            self.position.z += next_step[1]
+            self.position[2] += next_step[1]
 
     def is_collide(self, dx=0, dz=0):
         int_pos = (
-            int(self.position.x + dx + (
+            int(self.position[0] + dx + (
                 PLAYER_SIZE if dx > 0 else -PLAYER_SIZE if dx < 0 else 0)
                 ),
-            int(self.position.z + dz + (
+            int(self.position[2] + dz + (
                 PLAYER_SIZE if dz > 0 else -PLAYER_SIZE if dz < 0 else 0)
                 )
         )
