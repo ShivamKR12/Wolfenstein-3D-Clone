@@ -1,6 +1,8 @@
 import moderngl as mgl
 from settings import *
 from texture_builder import TextureArrayBuilder
+import warnings
+import png
 
 
 class Textures:
@@ -32,3 +34,11 @@ class Textures:
         texture.build_mipmaps()
         texture.filter = (mgl.NEAREST, mgl.NEAREST)
         return texture
+
+    def handle_libpng_warnings(self, file_path):
+        with open(file_path, 'rb') as f:
+            reader = png.Reader(file=f)
+            for chunk in reader.chunks():
+                if chunk[0] == b'sRGB':
+                    warnings.warn(f"libpng warning: {file_path} contains an sRGB profile that is not correct.")
+                    break
