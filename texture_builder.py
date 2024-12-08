@@ -3,7 +3,8 @@ import pathlib
 import re
 import pygame as pg
 from settings import TEX_SIZE
-
+import warnings
+import png
 
 class TextureArrayBuilder:
     def __init__(self, should_build=True):
@@ -38,3 +39,12 @@ class TextureArrayBuilder:
 
         pg.image.save(sprite_sheet, sprite_sheet_path)
         pg.image.save(texture_array, texture_array_path)
+        self.handle_libpng_warnings(texture_array_path)
+
+    def handle_libpng_warnings(self, file_path):
+        with open(file_path, 'rb') as f:
+            reader = png.Reader(file=f)
+            for chunk in reader.chunks():
+                if chunk[0] == b'sRGB':
+                    warnings.warn(f"libpng warning: {file_path} contains an sRGB profile that is not correct.")
+                    break

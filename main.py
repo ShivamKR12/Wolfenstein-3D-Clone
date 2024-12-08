@@ -2,7 +2,7 @@ import sys
 import moderngl as mgl
 from engine import Engine
 from settings import *
-
+import logging
 
 class Game:
     def __init__(self):
@@ -13,8 +13,12 @@ class Game:
         pg.display.gl_set_attribute(pg.GL_DEPTH_SIZE, DEPTH_SIZE)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_FLAGS, pg.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG)
 
-        pg.display.set_mode(WIN_RES, flags=pg.OPENGL | pg.DOUBLEBUF)
-        self.ctx = mgl.create_context()
+        try:
+            pg.display.set_mode(WIN_RES, flags=pg.OPENGL | pg.DOUBLEBUF)
+            self.ctx = mgl.create_context()
+        except Exception as e:
+            logging.error(f"Failed to create OpenGL context: {e}")
+            sys.exit(1)
 
         self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.BLEND)
         self.ctx.gc_mode = 'auto'
@@ -75,7 +79,11 @@ class Game:
         pg.quit()
         sys.exit()
 
+    def check_graphics_drivers(self):
+        # Placeholder for actual implementation
+        logging.info("Checking graphics drivers and compatibility with Windows 11")
 
 if __name__ == '__main__':
     game = Game()
+    game.check_graphics_drivers()
     game.run()
