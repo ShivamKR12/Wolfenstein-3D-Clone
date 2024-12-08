@@ -59,4 +59,6 @@ class Engine:
         self.scene.update()
 
     def render(self):
+        self.ctx.clear(color=(0.0, 0.0, 0.0, 1.0))
         self.scene.render()
+        pg.display.flip()

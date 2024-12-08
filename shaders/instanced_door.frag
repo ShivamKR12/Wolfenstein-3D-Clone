@@ -12,13 +12,15 @@ const vec3 inv_gamma = 1 / gamma;
 
 
 void main() {
-    vec3 tex_col = texture(u_texture_array_0, vec3(uv, tex_id)).rgb;
-    tex_col = pow(tex_col, gamma);
+    vec4 tex_col = texture(u_texture_array_0, vec3(uv, tex_id));
+    if (tex_col.a <= 0.1) discard;
+
+    vec3 col = pow(tex_col.rgb, gamma);
 
     // fog
     float fog_dist = gl_FragCoord.z / gl_FragCoord.w;
-    tex_col = mix(tex_col, vec3(0.05), (1.0 - exp2(-0.015 * fog_dist * fog_dist)));
+    col = mix(col, vec3(0.05), (1.0 - exp2(-0.015 * fog_dist * fog_dist)));
 
-    tex_col = pow(tex_col, inv_gamma);
-    frag_color = vec4(tex_col, 1.0);
+    col = pow(col, inv_gamma);
+    frag_color = vec4(col, tex_col.a);
 }
